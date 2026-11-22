@@ -1,0 +1,16 @@
+{
+  "name": "india-job-matcher",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "match": "node match.mjs",
+    "start": "node preview.mjs",
+    "test": "node --test verify-ranking.mjs"
+  },
+  "dependencies": {
+    "mammoth": "^1.10.0",
+    "pdf-parse": "^2.4.5",
+    "playwright-core": "^1.56.0"
+  }
+}

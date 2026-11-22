@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "India Job Finder",
+  "version": "2.0.0",
+  "description": "Connect your job finder to the India tech listings visible in your Brave session.",
+  "permissions": ["activeTab", "scripting", "storage", "alarms"],
+  "host_permissions": ["https://layoffsandhires.com/*"],
+  "action": {"default_title": "Connect this job finder page"},
+  "background": {"service_worker": "worker.js"},
+  "content_scripts": [{"matches":["https://layoffsandhires.com/jobs*"],"js":["portal.js"],"run_at":"document_idle"}]
+}
+
