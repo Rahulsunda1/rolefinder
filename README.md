@@ -16,4 +16,4 @@ Run `npm test` for ranking regressions. With the preview running, `node verify-b
 
 The free GitHub Pages deployment serves the contents of **web/** on the **gh-pages** branch. After pushing updated source, deploy with `git subtree push --prefix web origin gh-pages`.
 
-Personal matching profiles are imported as local JSON from the **Matching profile** control. The file contains a display name, startMonth (YYYY-MM), skills, domains, domainEvidence and role evidence keyed by backend, automation, fullstack, data or software. The app reads it in the browser and stores it only on that site origin. Before import, it shows role-based suggestions. The repository contains synthetic test profiles. Keep real profiles in the ignored resumes folder.
+Use **Upload resume** to parse a text-based PDF, DOCX or TXT file locally. Review the extracted skills and experience evidence, and correct the full-time start month if needed. The browser saves the derived profile on this site origin and re-ranks saved jobs immediately. Image-only scans need a text version.

@@ -17,10 +17,9 @@ try {
  }
  await finder.goto(process.env.FINDER_TEST_URL || 'http://127.0.0.1:4173');
  const connect=async()=>{await finder.addScriptTag({content:await readFile('brave-connector/bridge.js','utf8')});await finder.waitForFunction(()=>!document.querySelector('#run').disabled)};
- await finder.locator('#profile-file').setInputFiles({name:'fixture.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({
-   name:'Fixture profile',startMonth:new Date().toISOString().slice(0,7),skills:['nodejs'],domains:[],domainEvidence:'',evidence:{backend:'Fixture API project'}
- }))});
- await finder.waitForFunction(()=>document.querySelector('#profile-name').textContent==='Fixture profile');
+ const year=new Date().getFullYear();
+ await finder.locator('#resume-file').setInputFiles({name:'fixture.txt',mimeType:'text/plain',buffer:Buffer.from('Experience\nBackend Developer January '+year+' – Present\nBuilt Node.js backend APIs for financial services and maintained production systems.')});
+ await finder.waitForFunction(()=>document.querySelector('#profile-name').textContent==='fixture.txt');
  await connect();await finder.locator('#run').click();
  for(let i=0;i<100&&!store.run;i++) await new Promise(r=>setTimeout(r,20));
  await portal.route(source,r=>r.fulfill({contentType:'text/html; charset=utf-8',body:'<button aria-label="Account: Test">Account</button><main><h1>Jobs in India</h1><ul></ul><nav aria-label="Pagination"><button aria-current="page">1</button><button id="next">Next<span aria-hidden="true">›</span></button></nav></main>'}));
@@ -55,6 +54,7 @@ try {
  assert.match(await finder.locator('article').innerText(),/5 or more years/);
  console.log('Verified search, experience filtering, description re-ranking and persistence.');
 }finally{await browser.close();}
+
 
 
 
