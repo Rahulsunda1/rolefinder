@@ -48,16 +48,38 @@ try{
   const saved=JSON.parse(localStorage.getItem('rolefinder.profile'));
   if(validProfile(saved))profile=saved;
 }catch{}
-if(profile)$('profile-name').textContent=profile.name;
-$('profile-file').onchange=async event=>{
+import {readResume,extractProfile} from './resume.mjs';
+function showProfile(){
+  if(!profile)return;
+  $('profile-name').textContent=profile.name;
+  $('resume-review').hidden=false;
+  $('resume-skills').textContent='Skills · '+(profile.skills.join(', ')||'None recognized');
+  $('resume-tracks').textContent=Object.values(profile.evidence).join(' ');
+  $('experience-start').value=profile.startMonth;
+}
+showProfile();
+let uploadSequence=0;
+$('resume-file').onchange=async event=>{
   const file=event.target.files[0];if(!file)return;
+  const seq=++uploadSequence;
+  $('parse-status').textContent='Reading your resume…';
   try{
-    const imported=JSON.parse(await file.text());
-    if(!validProfile(imported))throw Error('Select a valid matching profile JSON file.');
-    localStorage.setItem('rolefinder.profile',JSON.stringify(imported));
-    profile=imported;$('profile-name').textContent=profile.name;
-    render();$('status').textContent='Profile loaded locally. Saved listings have been ranked again.';
-  }catch(error){$('status').textContent=error.message;}
+    const text=await readResume(file);
+    const parsed=extractProfile(text,file.name);
+    if(seq!==uploadSequence)return;
+    localStorage.setItem('rolefinder.profile',JSON.stringify(parsed));
+    profile=parsed;showProfile();render();
+    $('parse-status').textContent='Resume ready. Saved jobs have been re-ranked.';
+    $('resume-review').open=true;
+  }catch(error){
+    if(seq===uploadSequence)$('parse-status').textContent='Could not parse this resume. '+error.message;
+  }finally{if(seq===uploadSequence)event.target.value='';}
+};
+$('experience-start').onchange=()=>{
+  if(!profile)return;
+  const updated={...profile,startMonth:$('experience-start').value};
+  if(!validProfile(updated))return;
+  localStorage.setItem('rolefinder.profile',JSON.stringify(updated));profile=updated;render();
 };
 const filterIds=['fit','track','query'];
 function filterValues(){return Object.fromEntries(filterIds.map(id=>[id,$(id).value]));}
@@ -173,6 +195,7 @@ window.addEventListener('message',async e=>{
   $('status').textContent=m.type==='error'?m.message:m.type==='done'?'Reached the end of the filter.':'Batch saved. Keep the portal tab open to continue from page '+nextPage()+'.';
 });
 controls();
+
 
 
 

@@ -6,7 +6,7 @@ const aliases = [
   [/\b(?:software development engineer|sde)\b/gi, 'software engineer'],
   [/\bdevelopers?\b/gi, 'engineer']
 ];
-function tokens(text) {
+export function tokens(text) {
   for (const [pattern, replacement] of aliases) text = text.replace(pattern, replacement);
   return new Set(text.toLowerCase().match(/[a-z0-9]+(?:[+#]+)?/g) ?? []);
 }
@@ -33,7 +33,7 @@ export function rankRoles(jobs, resume) {
 
 
 
-const tracks = [
+export const tracks = [
   {id:'automation', name:'AI & workflow automation', pattern:/\b(llms?|mcp|gen(?:erative)?[ -]?ai|agentic|ai agents?|workflow automation|process automation)\b/i},
   {id:'backend', name:'Backend & distributed systems', pattern:/\b(back[ -]?end|apis?|microservices?|distributed systems?|event[ -]driven|node\.?js|spring(?: boot)?|kafka)\b/i},
   {id:'fullstack', name:'Full-stack development', pattern:/\b(full[ -]?stack|mern|react(?:\.js)?)\b/i},
@@ -62,7 +62,7 @@ export function validProfile(p){
   const strings=list=>Array.isArray(list)&&list.every(v=>typeof v==='string'&&v.length<=200);
   return p && typeof p.name==='string' && strings(p.skills) && strings(p.domains) &&
     p.evidence && typeof p.evidence==='object' && Object.values(p.evidence).every(v=>typeof v==='string') &&
-    typeof p.domainEvidence==='string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(p.startMonth);
+    typeof p.domainEvidence==='string' && (p.startMonth==='' || /^\d{4}-(0[1-9]|1[0-2])$/.test(p.startMonth));
 }
 export function personalize(job,today=new Date(),profile=null){
   const title=job.title;
@@ -76,7 +76,7 @@ export function personalize(job,today=new Date(),profile=null){
   const years=minimumExperience([text,job.cardText].filter(Boolean).join('\n'));
   const [year,month]=(profile?.startMonth||'0000-01').split('-').map(Number);
   const months=(today.getFullYear()-year)*12+today.getMonth()+1-month;
-  const gap=!!profile && years!==null && years*12>months;
+  const gap=!!profile?.startMonth && years!==null && years*12>months;
   const skills=tokens(text);
   const matched=(profile?.skills||[]).filter(word=>skills.has(word)&&!['engineer','software','backend','fullstack','automation'].includes(word));
   const reasons=relevant.map(track=>profile?.evidence[track.id] || 'Role family: '+track.name+'.');
@@ -110,4 +110,5 @@ export function selectMatches(rows,{fit='recommended',track='all',query=''}={}){
     return words.every(word=>text.includes(word));
   }).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title));
 }
+
 
